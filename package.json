@@ -6,7 +6,10 @@
   "directories": {
     "test": "test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@truffle/hdwallet-provider": "^2.1.2",
+    "file-system": "^2.2.2"
+  },
   "devDependencies": {
     "@openzeppelin/test-helpers": "^0.5.16"
   },
