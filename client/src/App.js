@@ -20,6 +20,8 @@ function App() {
         Multisig.abi,
         deployedNetwork && deployedNetwork.address,
       );
+
+      //6 
       const quorum = await contract.methods
         .quorum()
         .call();
@@ -35,6 +37,8 @@ function App() {
     });
   }, []);
 
+  //2 to trigger the updateBalance function 
+  //set an array of variables, hook is triggered when variable is changed 
   useEffect(() => {
     if(typeof contract !== 'undefined' && typeof web3 !== 'undefined') {
       updateBalance();
@@ -42,11 +46,14 @@ function App() {
     }
   }, [accounts, contract, web3]);
 
+  //1
   async function updateBalance() {
     const balance = await web3.eth.getBalance(contract.options.address);
     setBalance(balance);
   }
-
+// 3 at begining no transfer we will see only create transfer 
+//after the transfer is created , then first form is hidden and form 2 i.e vote form will display
+//new state currentTransfer will be displayed  
   async function createTransfer(e) {
     e.preventDefault();
     const amount = e.target.elements[0].value;
@@ -57,14 +64,18 @@ function App() {
     await updateCurrentTransfer();
   };
 
+  // 7 function to approve the transfer 
   async function sendTransfer() {
     await contract.methods
       .sendTransfer(currentTransfer.id)
       .send({from: accounts[0]});
+
+      //to refresh the UI 
     await updateBalance();
     await updateCurrentTransfer();
   };
 
+  //4 add hook prior 4 to remain update about the current transfer 
   async function updateCurrentTransfer() {
     const currentTransferId = (await contract.methods
       .nextId()
@@ -73,9 +84,11 @@ function App() {
       const currentTransfer = await contract.methods
         .transfers(currentTransferId)
         .call();
+        //to fetch current state of approval 
       const alreadyApproved = await contract.methods
         .approvals(accounts[0], currentTransferId)
         .call();
+        //add already approved flag to current tranfer use destructuring syntax 
       setCurrentTransfer({...currentTransfer, alreadyApproved});
     }
   }
@@ -94,6 +107,7 @@ function App() {
         </div>
       </div>
 
+  {/*5 add quorum hook prior 5 to*/} 
       {!currentTransfer || currentTransfer.approvals === quorum ? ( 
         <div className="row">
           <div className="col-sm-12">
@@ -116,10 +130,12 @@ function App() {
           <div className="col-sm-12">
             <h2>Approve transfer</h2>
             <ul>
+            {/*8 display info for current transfer*/} 
               <li>TransferId: {currentTransfer.id}</li>
               <li>Amount: {currentTransfer.amount}</li>
               <li>Approvals: {currentTransfer.approvals}</li>
             </ul>
+             {/*9 conditionaly display the submit button only if we haven't voted yet*/} 
             {currentTransfer.alreadyApproved ? 'Already approved' : (
               <button 
                 type="submit" 
